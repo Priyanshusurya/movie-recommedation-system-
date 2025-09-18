@@ -7,7 +7,7 @@ import pandas as pd
 movies = pd.read_csv("tmdb_5000_movies.csv")
 
 # ✅ Load precomputed similarity matrix
- similarity = pickle.load(open('similarity.pkl', 'rb'))
+similarity = pickle.load(open('similarity.pkl', 'rb'))
 def fetch_poster(movie_title):
     api_key = "f3d4e762"  # your OMDb API key
     url = f"http://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
@@ -59,6 +59,7 @@ if st.button('Show Recommendation'):
         with cols[i]:
             st.text(names[i])
             st.image(posters[i])
+
 
 
 
