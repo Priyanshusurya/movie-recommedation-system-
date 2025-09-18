@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Load movies dataset
-movies = pd.read_csv("tmdb_5000_movies.csv")
+movies = pd.read_csv("new_df.csv")
 
 # Create feature vectors
 cv = CountVectorizer(max_features=5000, stop_words='english')
@@ -73,6 +73,7 @@ if st.button('Show Recommendation'):
         with cols[i]:
             st.text(f"{names[i]} \n⭐ {ratings[i]}")
             st.image(posters[i])
+
 
 
 
