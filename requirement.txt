@@ -1,5 +1,6 @@
-
-pandas
 streamlit
+pandas
 requests
 scikit-learn
+
+
