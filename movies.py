@@ -19,7 +19,7 @@ def fetch_poster(movie_title):
 movies = pd.read_csv("tmdb_5000_movies.csv")
 
 # ✅ Load precomputed similarity matrix
-similarity = pickle.load(open('similarity.pkl', 'rb'))
+# similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 # Recommendation function
 def recommend(movie):
@@ -55,3 +55,4 @@ if st.button('Show Recommendation'):
         with cols[i]:
             st.text(names[i])
             st.image(posters[i])
+
