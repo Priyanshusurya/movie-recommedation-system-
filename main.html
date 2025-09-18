@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Recommender System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 15px;
+      width: 400px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #38bdf8;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    select {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    button {
+      background: #38bdf8;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #0ea5e9;
+    }
+
+    .results {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .movie-item {
+      background: #334155;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 Movie Recommender</h1>
+    <label for="movieSelect">Choose a movie:</label>
+    <select id="movieSelect">
+      <!-- Options will be injected dynamically via JavaScript -->
+    </select>
+    <button onclick="recommendMovies()">Recommend</button>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    // Example movie list (replace with backend data)
+    const movies = ["Avatar", "Inception", "Interstellar", "Titanic", "The Dark Knight"];
+
+    // Populate dropdown
+    const select = document.getElementById("movieSelect");
+    movies.forEach(movie => {
+      const option = document.createElement("option");
+      option.value = movie;
+      option.textContent = movie;
+      select.appendChild(option);
+    });
+
+    // Simulated recommend function (replace with API call)
+    function recommendMovies() {
+      const selected = select.value;
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "<h3>Recommended Movies:</h3>";
+
+      // Dummy recommendations (you’ll replace with backend response)
+      const recommendations = ["Movie 1", "Movie 2", "Movie 3", "Movie 4", "Movie 5"];
+
+      recommendations.forEach(rec => {
+        const div = document.createElement("div");
+        div.className = "movie-item";
+        div.textContent = rec;
+        resultsDiv.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
