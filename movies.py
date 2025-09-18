@@ -3,22 +3,25 @@ import streamlit as st
 import pickle
 import pandas as pd
 
-# Function to fetch poster using OMDb API
-def fetch_poster(movie_title):
+# Function to fetch poster and rating using OMDb API
+def fetch_poster_and_rating(movie_title):
     api_key = "f3d4e762"  # your OMDb API key
     url = f"http://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
     response = requests.get(url)
     data = response.json()
-    if data.get("Poster") and data["Poster"] != "N/A":
-        return data["Poster"]
-    else:
-        # fallback placeholder image
-        return "https://via.placeholder.com/300x450.png?text=No+Image"
+    
+    # Poster
+    poster = data.get("Poster") if data.get("Poster") and data["Poster"] != "N/A" else "https://via.placeholder.com/300x450.png?text=No+Image"
+    
+    # Rating
+    rating = data.get("imdbRating") if data.get("imdbRating") and data["imdbRating"] != "N/A" else "No Rating"
+    
+    return poster, rating
 
-# ✅ Load dataset (make sure file is in the same folder)
+# Load dataset
 movies = pd.read_csv("tmdb_5000_movies.csv")
 
-# ✅ Load precomputed similarity matrix
+# Load precomputed similarity matrix
 similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 # Recommendation function
@@ -30,17 +33,20 @@ def recommend(movie):
     )[1:6]
     
     recommended_movies = []
-    recommended_movies_poster = []
+    recommended_movies_posters = []
+    recommended_movies_ratings = []
     
     for i in movie_list:
         title = movies.iloc[i[0]].title
         recommended_movies.append(title)
-        recommended_movies_poster.append(fetch_poster(title))
+        poster, rating = fetch_poster_and_rating(title)
+        recommended_movies_posters.append(poster)
+        recommended_movies_ratings.append(rating)
     
-    return recommended_movies, recommended_movies_poster
+    return recommended_movies, recommended_movies_posters, recommended_movies_ratings
 
-# ✅ Streamlit UI
-st.title("🎬 Movie Recommender System")
+# Streamlit UI
+st.title("🎬 Movie Recommendation System ")
 
 selected_movie = st.selectbox(
     "Type or select a movie from the dropdown",
@@ -48,10 +54,10 @@ selected_movie = st.selectbox(
 )
 
 if st.button('Show Recommendation'):
-    names, posters = recommend(selected_movie)
+    names, posters, ratings = recommend(selected_movie)
     
     cols = st.columns(5)
     for i in range(5):
         with cols[i]:
-            st.text(names[i])
+            st.text(f"{names[i]} \n⭐ {ratings[i]}")
             st.image(posters[i])
