@@ -1,15 +1,14 @@
 import pickle
-import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+import os
 
-# Load movies dataset
-movies = pd.read_csv("tmdb_5000_movies.csv")
+if os.path.exists("similarity.pkl"):
+    similarity = pickle.load(open("similarity.pkl", "rb"))
+else:
+    from sklearn.feature_extraction.text import CountVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
 
-# Example: build a simple content-based similarity
-cv = CountVectorizer(max_features=5000, stop_words='english')
-vectors = cv.fit_transform(movies['overview'].fillna(''))
-similarity = cosine_similarity(vectors)
+    cv = CountVectorizer(max_features=5000, stop_words='english')
+    vectors = cv.fit_transform(movies['overview'].fillna(''))
+    similarity = cosine_similarity(vectors)
 
-# Save pickle
-pickle.dump(similarity, open('similarity.pkl', 'wb'))
+    pickle.dump(similarity, open("similarity.pkl", "wb"))
