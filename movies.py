@@ -61,3 +61,4 @@ if st.button('Show Recommendation'):
         with cols[i]:
             st.text(f"{names[i]} \n⭐ {ratings[i]}")
             st.image(posters[i])
+
