@@ -6,7 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # Function to fetch poster using OMDb API
 def fetch_poster(movie_title):
-    api_key = "f3d4e762"  # your OMDb API key
+    api_key = "f3d4e762"
     url = f"http://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
     response = requests.get(url)
     data = response.json()
@@ -17,8 +17,6 @@ def fetch_poster(movie_title):
 
 # Load movies dataset
 movies = pd.read_csv("tmdb_5000_movies.csv")
-
-# Preprocess: fill missing overviews
 movies['overview'] = movies['overview'].fillna('')
 
 # Convert overview text to vectors
