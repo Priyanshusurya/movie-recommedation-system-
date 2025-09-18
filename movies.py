@@ -1,55 +1,53 @@
+import pandas as pd
 import requests
 import streamlit as st
-import pickle
-import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Function to fetch poster using OMDb API
-movies = pd.read_csv("tmdb_5000_movies.csv")
-
-# ✅ Load precomputed similarity matrix
-similarity = pickle.load(open('similarity.pkl', 'rb'))
 def fetch_poster(movie_title):
-    api_key = "f3d4e762"  # your OMDb API key
+    api_key = "f3d4e762"
     url = f"http://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
     response = requests.get(url)
     data = response.json()
     if data.get("Poster") and data["Poster"] != "N/A":
         return data["Poster"]
     else:
-        # fallback placeholder image
         return "https://via.placeholder.com/300x450.png?text=No+Image"
 
-# ✅ Load dataset (make sure file is in the same folder)
-# movies = pd.read_csv("tmdb_5000_movies.csv")
+# Load movies dataset
+movies = pd.read_csv("tmdb_5000_movies.csv")
+movies['overview'] = movies['overview'].fillna('')
 
-# # ✅ Load precomputed similarity matrix
-#  similarity = pickle.load(open('similarity.pkl', 'rb'))
+# Streamlit cache to speed up similarity calculation
+@st.cache_data
+def compute_similarity(movies):
+    cv = CountVectorizer(max_features=5000, stop_words='english')
+    vectors = cv.fit_transform(movies['overview']).toarray()
+    return cosine_similarity(vectors)
+
+similarity = compute_similarity(movies)
 
 # Recommendation function
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
-    distance = similarity[movie_index]
-    movie_list = sorted(
-        list(enumerate(distance)), reverse=True, key=lambda x: x[1]
-    )[1:6]
+    distances = similarity[movie_index]
+    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
     
     recommended_movies = []
-    recommended_movies_poster = []
+    recommended_posters = []
     
-    for i in movie_list:
+    for i in movies_list:
         title = movies.iloc[i[0]].title
         recommended_movies.append(title)
-        recommended_movies_poster.append(fetch_poster(title))
+        recommended_posters.append(fetch_poster(title))
     
-    return recommended_movies, recommended_movies_poster
+    return recommended_movies, recommended_posters
 
-# ✅ Streamlit UI
-st.title("🎬 Movie Recommendation  System")
+# Streamlit UI
+st.title("🎬 Movie Recommender System")
 
-selected_movie = st.selectbox(
-    "Type or select a movie from the dropdown",
-    movies['title'].values
-)
+selected_movie = st.selectbox("Select a movie:", movies['title'].values)
 
 if st.button('Show Recommendation'):
     names, posters = recommend(selected_movie)
@@ -59,7 +57,3 @@ if st.button('Show Recommendation'):
         with cols[i]:
             st.text(names[i])
             st.image(posters[i])
-
-
-
-
