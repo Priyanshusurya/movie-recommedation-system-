@@ -4,6 +4,10 @@ import pickle
 import pandas as pd
 
 # Function to fetch poster using OMDb API
+movies = pd.read_csv("tmdb_5000_movies.csv")
+
+# ✅ Load precomputed similarity matrix
+ similarity = pickle.load(open('similarity.pkl', 'rb'))
 def fetch_poster(movie_title):
     api_key = "f3d4e762"  # your OMDb API key
     url = f"http://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
@@ -16,10 +20,10 @@ def fetch_poster(movie_title):
         return "https://via.placeholder.com/300x450.png?text=No+Image"
 
 # ✅ Load dataset (make sure file is in the same folder)
-movies = pd.read_csv("tmdb_5000_movies.csv")
+# movies = pd.read_csv("tmdb_5000_movies.csv")
 
-# ✅ Load precomputed similarity matrix
- similarity = pickle.load(open('similarity.pkl', 'rb'))
+# # ✅ Load precomputed similarity matrix
+#  similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 # Recommendation function
 def recommend(movie):
@@ -55,5 +59,6 @@ if st.button('Show Recommendation'):
         with cols[i]:
             st.text(names[i])
             st.image(posters[i])
+
 
 
