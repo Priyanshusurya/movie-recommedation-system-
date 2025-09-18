@@ -5,25 +5,29 @@ import pandas as pd
 
 # Function to fetch poster using OMDb API
 def fetch_poster(movie_title):
-    api_key = "f3d4e762"
+    api_key = "f3d4e762"  # your OMDb API key
     url = f"http://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
     response = requests.get(url)
     data = response.json()
     if data.get("Poster") and data["Poster"] != "N/A":
         return data["Poster"]
     else:
-        return "https://via.placeholder.com/300x450.png?text=No+Image"  # fallback image
+        # fallback placeholder image
+        return "https://via.placeholder.com/300x450.png?text=No+Image"
 
-# Load movie data
-movies_dict = pickle.load(open('movie_dict.pkl', 'rb'))
-movies = pd.DataFrame(movies_dict)
+# ✅ Load dataset (make sure file is in the same folder)
+movies = pd.read_csv("tmdb_5000_movies.csv")
+
+# ✅ Load precomputed similarity matrix
 similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 # Recommendation function
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
     distance = similarity[movie_index]
-    movie_list = sorted(list(enumerate(distance)), reverse=True, key=lambda x: x[1])[1:6]
+    movie_list = sorted(
+        list(enumerate(distance)), reverse=True, key=lambda x: x[1]
+    )[1:6]
     
     recommended_movies = []
     recommended_movies_poster = []
@@ -35,8 +39,8 @@ def recommend(movie):
     
     return recommended_movies, recommended_movies_poster
 
-# Streamlit UI
-st.title("🎬 Movie Recommendation System")
+# ✅ Streamlit UI
+st.title("🎬 Movie Recommendation  System")
 
 selected_movie = st.selectbox(
     "Type or select a movie from the dropdown",
