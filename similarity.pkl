@@ -3,16 +3,16 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle
 
-# Suppose you have a CSV of movies
-movies = pd.read_csv('movies.csv')  # must have a column 'tags' or 'description'
+# Load your movie dataset
+movies = pd.read_csv('movies.csv')  # must have a 'tags' column
 
-# Convert text data into vectors
+# Vectorize text
 cv = CountVectorizer(max_features=5000, stop_words='english')
 vectors = cv.fit_transform(movies['tags']).toarray()
 
-# Compute cosine similarity between all movies
+# Compute similarity
 similarity = cosine_similarity(vectors)
 
-# Save the similarity matrix
+# Save similarity matrix to pickle
 with open('similarity.pkl', 'wb') as f:
     pickle.dump(similarity, f)
