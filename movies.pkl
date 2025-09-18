@@ -1,15 +1,15 @@
-import pickle
 import pandas as pd
+import pickle
 
-
-# load your dataset
+# Load dataset
 movies = pd.read_csv("movies.csv")
 
-# convert into dictionary
+# Convert into dictionary
 movie_dict = movies.to_dict()
 
-# save as pickle
-pickle.dump(movie_dict, open("movie_dict.pkl", "wb"))
-movies_dict = pickle.load(open('movie_dict.pkl', 'rb'))
+# Save as pickle
+with open("movie_dict.pkl", "wb") as f:
+    pickle.dump(movie_dict, f)
+
 
 
