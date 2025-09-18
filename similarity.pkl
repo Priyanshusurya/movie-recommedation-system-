@@ -1,0 +1,21 @@
+import pandas as pd
+import pickle
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Load movies dataset
+movies = pd.read_csv("tmdb_5000_movies.csv")
+
+# Keep relevant columns and fill missing overview
+movies = movies[['movie_id','title','overview']]
+movies['overview'] = movies['overview'].fillna('')
+
+# Convert overview text into vectors
+cv = CountVectorizer(max_features=5000, stop_words='english')
+vectors = cv.fit_transform(movies['overview']).toarray()
+
+# Compute similarity matrix
+similarity = cosine_similarity(vectors)
+
+# Save similarity.pkl
+pickle.dump(similarity, open('similarity.pkl', 'wb'))
