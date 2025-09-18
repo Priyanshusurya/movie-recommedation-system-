@@ -1,31 +1,57 @@
+import requests
 import streamlit as st
 import pickle
 import pandas as pd
 
-# Load movie dictionary and similarity matrix
-with open('movie_dict.pkl', 'rb') as f:
-    movie_dict = pickle.load(f)
+# Function to fetch poster using OMDb API
+def fetch_poster(movie_title):
+    api_key = "f3d4e762"  # your OMDb API key
+    url = f"http://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
+    response = requests.get(url)
+    data = response.json()
+    if data.get("Poster") and data["Poster"] != "N/A":
+        return data["Poster"]
+    else:
+        # fallback placeholder image
+        return "https://via.placeholder.com/300x450.png?text=No+Image"
 
-with open('similarity.pkl', 'rb') as f:
-    similarity = pickle.load(f)
+# ✅ Load dataset (make sure file is in the same folder)
+movies = pd.read_csv("tmdb_5000_movies.csv")
 
-# Load movies CSV
-movies = pd.read_csv('movies.csv')
+# ✅ Load precomputed similarity matrix
+similarity = pickle.load(open('similarity.pkl', 'rb'))
 
+# Recommendation function
 def recommend(movie):
-    index = movie_dict[movie]
-    distances = similarity[index]
-    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
-
+    movie_index = movies[movies['title'] == movie].index[0]
+    distance = similarity[movie_index]
+    movie_list = sorted(
+        list(enumerate(distance)), reverse=True, key=lambda x: x[1]
+    )[1:6]
+    
     recommended_movies = []
-    for i in movies_list:
-        recommended_movies.append(movies.iloc[i[0]].title)
-    return recommended_movies
+    recommended_movies_poster = []
+    
+    for i in movie_list:
+        title = movies.iloc[i[0]].title
+        recommended_movies.append(title)
+        recommended_movies_poster.append(fetch_poster(title))
+    
+    return recommended_movies, recommended_movies_poster
 
-st.title("Movie Recommender System")
-selected_movie = st.selectbox("Choose a movie:", movies['title'].values)
+# ✅ Streamlit UI
+st.title("🎬 Movie Recommender System")
 
-if st.button("Recommend"):
-    recommendations = recommend(selected_movie)
-    for rec in recommendations:
-        st.write(rec)
+selected_movie = st.selectbox(
+    "Type or select a movie from the dropdown",
+    movies['title'].values
+)
+
+if st.button('Show Recommendation'):
+    names, posters = recommend(selected_movie)
+    
+    cols = st.columns(5)
+    for i in range(5):
+        with cols[i]:
+            st.text(names[i])
+            st.image(posters[i])
