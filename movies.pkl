@@ -2,7 +2,7 @@ import pandas as pd
 import pickle
 
 # Load dataset
-movies = pd.read_csv("movies.csv")
+movies = pd.read_csv("tmbd_5000_credits.csv")
 
 # Convert into dictionary
 movie_dict = movies.to_dict()
@@ -10,6 +10,7 @@ movie_dict = movies.to_dict()
 # Save as pickle
 with open("movie_dict.pkl", "wb") as f:
     pickle.dump(movie_dict, f)
+
 
 
 
