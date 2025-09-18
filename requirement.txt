@@ -1,7 +1,5 @@
-streamlit
+
 pandas
-numpy
-plotly
-matplotlib
-seaborn
-scipy
+streamlit
+requests
+scikit-learn
