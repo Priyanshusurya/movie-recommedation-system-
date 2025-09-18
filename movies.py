@@ -1,53 +1,51 @@
-import pandas as pd
 import requests
 import streamlit as st
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+import pickle
+import pandas as pd
 
 # Function to fetch poster using OMDb API
 def fetch_poster(movie_title):
-    api_key = "f3d4e762"
+    api_key = "f3d4e762"  # your OMDb API key
     url = f"http://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
     response = requests.get(url)
     data = response.json()
     if data.get("Poster") and data["Poster"] != "N/A":
         return data["Poster"]
     else:
+        # fallback placeholder image
         return "https://via.placeholder.com/300x450.png?text=No+Image"
 
-# Load movies dataset
+# ✅ Load dataset (make sure file is in the same folder)
 movies = pd.read_csv("tmdb_5000_movies.csv")
-movies['overview'] = movies['overview'].fillna('')
 
-# Streamlit cache to speed up similarity calculation
-@st.cache_data
-def compute_similarity(movies):
-    cv = CountVectorizer(max_features=5000, stop_words='english')
-    vectors = cv.fit_transform(movies['overview']).toarray()
-    return cosine_similarity(vectors)
-
-similarity = compute_similarity(movies)
+# ✅ Load precomputed similarity matrix
+similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 # Recommendation function
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
-    distances = similarity[movie_index]
-    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
+    distance = similarity[movie_index]
+    movie_list = sorted(
+        list(enumerate(distance)), reverse=True, key=lambda x: x[1]
+    )[1:6]
     
     recommended_movies = []
-    recommended_posters = []
+    recommended_movies_poster = []
     
-    for i in movies_list:
+    for i in movie_list:
         title = movies.iloc[i[0]].title
         recommended_movies.append(title)
-        recommended_posters.append(fetch_poster(title))
+        recommended_movies_poster.append(fetch_poster(title))
     
-    return recommended_movies, recommended_posters
+    return recommended_movies, recommended_movies_poster
 
-# Streamlit UI
+# ✅ Streamlit UI
 st.title("🎬 Movie Recommender System")
 
-selected_movie = st.selectbox("Select a movie:", movies['title'].values)
+selected_movie = st.selectbox(
+    "Type or select a movie from the dropdown",
+    movies['title'].values
+)
 
 if st.button('Show Recommendation'):
     names, posters = recommend(selected_movie)
