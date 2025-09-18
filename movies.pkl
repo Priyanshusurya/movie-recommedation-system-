@@ -1,6 +1,7 @@
 import pickle
 import pandas as pd
 
+
 # load your dataset
 movies = pd.read_csv("movies.csv")
 
@@ -9,3 +10,6 @@ movie_dict = movies.to_dict()
 
 # save as pickle
 pickle.dump(movie_dict, open("movie_dict.pkl", "wb"))
+movies_dict = pickle.load(open('movie_dict.pkl', 'rb'))
+
+
