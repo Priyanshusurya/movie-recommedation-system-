@@ -77,4 +77,5 @@ if st.button('Show Recommendation'):
             st.image(posters[i])
 
 
-the app is not running now why 
+
+
