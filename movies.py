@@ -1,11 +1,12 @@
 import requests
 import streamlit as st
+import pickle
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Load movies dataset
-movies = pd.read_csv("new_df1.csv")
+movies = pd.read_csv("new_df.csv")
 
 # Create feature vectors
 cv = CountVectorizer(max_features=5000, stop_words='english')
@@ -29,14 +30,21 @@ def fetch_poster_and_rating(movie_title):
     
     return poster, rating
 
+# Load dataset
+movies = pd.read_csv("new_df.csv")
+with open("movies.pkl", "wb") as f:
+    pickle.dump(similarity, f)
+
+# Load precomputed similarity matrix
+similarity = pickle.load(open('movies.pkl', 'rb'))
+
 # Recommendation function
 def recommend(movie):
-    if movie not in movies['title'].values:
-        return [], [], []
-    
     movie_index = movies[movies['title'] == movie].index[0]
     distance = similarity[movie_index]
-    movie_list = sorted(list(enumerate(distance)), reverse=True, key=lambda x: x[1])[1:6]
+    movie_list = sorted(
+        list(enumerate(distance)), reverse=True, key=lambda x: x[1]
+    )[1:6]
     
     recommended_movies = []
     recommended_movies_posters = []
@@ -63,9 +71,10 @@ if st.button('Show Recommendation'):
     names, posters, ratings = recommend(selected_movie)
     
     cols = st.columns(5)
-    for i in range(len(names)):   # safer loop
+    for i in range(5):
         with cols[i]:
             st.text(f"{names[i]} \n⭐ {ratings[i]}")
             st.image(posters[i])
 
 
+the app is not running now why 
