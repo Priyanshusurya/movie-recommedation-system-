@@ -80,5 +80,3 @@ if st.button('Show Recommendation'):
 
 
 
-
-add the movies triliar link with the suggestion 
