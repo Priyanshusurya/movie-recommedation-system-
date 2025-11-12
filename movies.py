@@ -6,50 +6,47 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import urllib.parse
 
-# -------------------------------
-# CONFIGURATION
-# -------------------------------
-OMDB_API_KEY = "your_api_key_here"  # 🔑 Replace with your actual OMDb API key
-CSV_FILE = "new_df.csv"
+# Load movies dataset
+movies = pd.read_csv("new_df.csv")
 
-# -------------------------------
-# LOAD MOVIES AND SIMILARITY MODEL
-# -------------------------------
-@st.cache_data
-def load_data():
-    movies = pd.read_csv(CSV_FILE)
-    cv = CountVectorizer(max_features=5000, stop_words='english')
-    vectors = cv.fit_transform(movies['tags']).toarray()
-    similarity = cosine_similarity(vectors)
-    return movies, similarity
+# Create feature vectors
+cv = CountVectorizer(max_features=5000, stop_words='english')
+vectors = cv.fit_transform(movies['tags']).toarray()
 
-movies, similarity = load_data()
+# Compute similarity
+similarity = cosine_similarity(vectors)
 
-
-# -------------------------------
-# FETCH MOVIE DETAILS
-# -------------------------------
-@st.cache_data(show_spinner=False)
+# Function to fetch poster, rating, IMDb ID using OMDb API
 def fetch_movie_details(movie_title):
-    """Fetch poster, rating, IMDb link, and YouTube trailer using OMDb API."""
-    url = f"http://www.omdbapi.com/?t={movie_title}&apikey={OMDB_API_KEY}"
+    api_key = "f3d4e762"  # your OMDb API key
+    url = f"http://www.omdbapi.com/?t={movie_title}&apikey={api_key}"
     response = requests.get(url)
     data = response.json()
 
+    # Poster
     poster = data.get("Poster") if data.get("Poster") and data["Poster"] != "N/A" else "https://via.placeholder.com/300x450.png?text=No+Image"
+
+    # Rating
     rating = data.get("imdbRating") if data.get("imdbRating") and data["imdbRating"] != "N/A" else "No Rating"
+
+    # IMDb link
     imdb_id = data.get("imdbID")
     imdb_link = f"https://www.imdb.com/title/{imdb_id}/" if imdb_id else "https://www.imdb.com/"
 
+    # YouTube trailer link
     query = urllib.parse.quote(movie_title + " trailer")
     youtube_link = f"https://www.youtube.com/results?search_query={query}"
 
     return poster, rating, imdb_link, youtube_link
 
 
-# -------------------------------
-# RECOMMENDATION FUNCTION
-# -------------------------------
+# Save and load similarity
+with open("movies.pkl", "wb") as f:
+    pickle.dump(similarity, f)
+similarity = pickle.load(open('movies.pkl', 'rb'))
+
+
+# Recommendation function
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
     distance = similarity[movie_index]
@@ -79,27 +76,22 @@ def recommend(movie):
     )
 
 
-# -------------------------------
-# STREAMLIT UI
-# -------------------------------
-st.set_page_config(page_title="🎬 Movie Recommender", layout="wide")
+# Streamlit UI
 st.title("🎬 Movie Recommendation System")
 
 selected_movie = st.selectbox(
-    "🎥 Type or select a movie from the dropdown",
+    "Type or select a movie from the dropdown",
     movies['title'].values
 )
 
-if st.button('Show Recommendation 🎞️'):
+if st.button('Show Recommendation'):
     names, posters, ratings, imdb_links, youtube_links = recommend(selected_movie)
 
-    for i in range(len(names)):
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            st.image(posters[i], width=180)
-        with col2:
-            st.subheader(names[i])
-            st.write(f"⭐ IMDb Rating: {ratings[i]}")
+    cols = st.columns(5)
+    for i in range(5):
+        with cols[i]:
+            st.image(posters[i])
+            st.markdown(f"**{names[i]}**")
+            st.markdown(f"⭐ IMDb Rating: {ratings[i]}")
             st.markdown(f"[🎞 Watch Trailer]({youtube_links[i]})")
             st.markdown(f"[🎬 IMDb Page]({imdb_links[i]})")
-        st.divider()
