@@ -27,7 +27,7 @@ movies, similarity = load_data()
 
 
 # -------------------------------
-# FETCH MOVIE DETAILS (with caching)
+# FETCH MOVIE DETAILS
 # -------------------------------
 @st.cache_data(show_spinner=False)
 def fetch_movie_details(movie_title):
@@ -93,64 +93,13 @@ selected_movie = st.selectbox(
 if st.button('Show Recommendation 🎞️'):
     names, posters, ratings, imdb_links, youtube_links = recommend(selected_movie)
 
-    # Sliding CSS style
-    st.markdown("""
-        <style>
-        .scrolling-wrapper {
-            display: flex;
-            overflow-x: auto;
-            padding: 10px;
-            gap: 20px;
-            scroll-behavior: smooth;
-        }
-        .scrolling-wrapper::-webkit-scrollbar {
-            height: 10px;
-        }
-        .scrolling-wrapper::-webkit-scrollbar-thumb {
-            background-color: #888;
-            border-radius: 10px;
-        }
-        .movie-card {
-            min-width: 200px;
-            background: #1e1e1e;
-            color: white;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.3s;
-            padding-bottom: 10px;
-        }
-        .movie-card:hover {
-            transform: scale(1.05);
-        }
-        .movie-card img {
-            width: 100%;
-            border-radius: 15px 15px 0 0;
-            height: 300px;
-            object-fit: cover;
-        }
-        a {
-            color: #00b4d8;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # Create horizontal scrolling cards
-    html = '<div class="scrolling-wrapper">'
     for i in range(len(names)):
-        html += f"""
-            <div class="movie-card">
-                <img src="{posters[i]}" alt="{names[i]} Poster">
-                <h4>{names[i]}</h4>
-                <p>⭐ IMDb: {ratings[i]}</p>
-                <a href="{youtube_links[i]}" target="_blank">🎞 Watch Trailer</a><br>
-                <a href="{imdb_links[i]}" target="_blank">🎬 IMDb Page</a>
-            </div>
-        """
-    html += "</div>"
-
-    st.markdown(html, unsafe_allow_html=True)
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image(posters[i], width=180)
+        with col2:
+            st.subheader(names[i])
+            st.write(f"⭐ IMDb Rating: {ratings[i]}")
+            st.markdown(f"[🎞 Watch Trailer]({youtube_links[i]})")
+            st.markdown(f"[🎬 IMDb Page]({imdb_links[i]})")
+        st.divider()
