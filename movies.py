@@ -50,7 +50,7 @@ similarity = pickle.load(open('movies.pkl', 'rb'))
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
     distance = similarity[movie_index]
-    movie_list = sorted(list(enumerate(distance)), reverse=True, key=lambda x: x[1])[1:11]
+    movie_list = sorted(list(enumerate(distance)), reverse=True, key=lambda x: x[1])[1:6]
 
     recommended_movies = []
     recommended_posters = []
@@ -87,7 +87,7 @@ selected_movie = st.selectbox(
 if st.button('Show Recommendation'):
     names, posters, ratings, imdb_links, youtube_links = recommend(selected_movie)
 
-    cols = st.columns(10)
+    cols = st.columns(5)
     for i in range(5):
         with cols[i]:
             st.image(posters[i])
@@ -95,3 +95,4 @@ if st.button('Show Recommendation'):
             st.markdown(f"⭐ IMDb Rating: {ratings[i]}")
             st.markdown(f"[🎞 Watch Trailer]({youtube_links[i]})")
             st.markdown(f"[🎬 IMDb Page]({imdb_links[i]})")
+
